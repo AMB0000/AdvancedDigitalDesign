@@ -1,6 +1,6 @@
 # UART Word Detector — DE10-Lite
 
-# Student : Ali Behbehani
+#### Student : Ali Behbehani
 
 
 ## 1. Objective
