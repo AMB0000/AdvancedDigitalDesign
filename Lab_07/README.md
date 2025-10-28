@@ -4,10 +4,10 @@
 #### Class : Advanced Digital Design
 #### Instructor : Goncalo Fernandes Pereira Martins
 
-## 1. Objective
+## 1. Overview
 I implemented a UART-based word detection system on the Intel DE10-Lite FPGA board. The FPGA received ASCII characters at 115200 baud. When the word “hello” was received, a Finite State Machine (FSM) activated and displayed “HELLO” on the 7-segment HEX displays (HEX4 to HEX0), blinking for 3 seconds. This design demonstrated digital communication, finite state machines, and timed display control using Verilog HDL.
 
-## 2. Overview
+## 2. Subsystems used
 I integrated three subsystems:
 - UART communication core (receiver)
 - Finite State Machine word detector
