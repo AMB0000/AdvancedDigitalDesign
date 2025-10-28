@@ -63,7 +63,7 @@ Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchron
 
 I integrated digital communication, sequential logic, and display control into one cohesive Verilog design. The UART interface provided real-time serial input, and the FSM handled state transitions with conditional timing and output control. The blinking “HELLO” display validated synchronized timing and multi-module integration on the DE10-Lite FPGA.
 
-### 9. What I learned 
+## 9. What I learned 
 - UART serial communication
 - FSM-based control logic
 - Timer/counter implementation
