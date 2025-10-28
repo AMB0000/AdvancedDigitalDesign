@@ -14,14 +14,21 @@ I integrated three subsystems:
 - Display control logic for HEX and LEDs with timed blinking
 
 ## 3. Hardware 
-- DE10-Lite (Intel MAX 10, 50 MHz clock)
-- HEX5..HEX0 seven-segment displays (active-low)
-- One UART RX pin connected to the FPGA
+- DE10-Lite FPGA board (Intel MAX 10, 50 MHz onboard clock)
+- USB cable for programming the DE10-Lite
+- USB-to-UART adapter and USB cable
+-  wires (to connect UART RX/TX and GND)
+- PC with a serial terminal (115200, 8-N-1)
 
 ## 4. Design 
 I built a UART receiver at 115200 baud using the 50 MHz clock, an FSM that detected the sequence “hello” from ASCII bytes, and a display controller that mapped HELLO to HEX4..HEX0 and blinked it for 3 seconds. After the 3-second interval, the display cleared. I verified correctness by sending the word over UART and observing the blink window and timeout.
 
-## 5. How the code works
+
+## 5. Understand UART
+
+Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchronous serial communication technique that transfers data between two devices.  It requires both devices to agree on a common speed (baud rate), frames the data with start and stop bits, and turns parallel data into a serial stream.  One device's TX pin is connected to the other's RX pin; this connection is asynchronous, which means there isn't a separate clock signal; the receiver is kept in sync by the start and stop bits.
+
+## 6. How the code works
 
 - `MAX10_CLK1_50`: 50 MHz system clock for everything  
 - `SW[9]`: reset for the FSM  
@@ -47,14 +54,6 @@ I built a UART receiver at 115200 baud using the 50 MHz clock, an FSM that detec
 - `HEX5` and `HEX6`: forced off with `7'b1111111`
 
 
-
-## 6. Understand UART
-
-Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchronous serial communication technique that transfers data between two devices.  It requires both devices to agree on a common speed (baud rate), frames the data with start and stop bits, and turns parallel data into a serial stream.  One device's TX pin is connected to the other's RX pin; this connection is asynchronous, which means there isn't a separate clock signal; the receiver is kept in sync by the start and stop bits.
-
-##
-
-
 ## 7. Mini video of working project
 
 
@@ -64,7 +63,7 @@ Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchron
 
 I integrated digital communication, sequential logic, and display control into one cohesive Verilog design. The UART interface provided real-time serial input, and the FSM handled state transitions with conditional timing and output control. The blinking “HELLO” display validated synchronized timing and multi-module integration on the DE10-Lite FPGA.
 
-### What I learned 
+### 9. What I learned 
 - UART serial communication
 - FSM-based control logic
 - Timer/counter implementation
