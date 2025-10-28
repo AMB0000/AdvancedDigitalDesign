@@ -21,16 +21,38 @@ I integrated three subsystems:
 ## 4. Design 
 I built a UART receiver at 115200 baud using the 50 MHz clock, an FSM that detected the sequence “hello” from ASCII bytes, and a display controller that mapped HELLO to HEX4..HEX0 and blinked it for 3 seconds. After the 3-second interval, the display cleared. I verified correctness by sending the word over UART and observing the blink window and timeout.
 
-## 5. Build & Run
-- Top entity: `uart_hello_top`
-- Map clock to 50 MHz input, UART RX to the chosen GPIO/UART pin, and HEX4..HEX0 to the 7-segment pins
-- Program and send “hello” at 115200-8-N-1
+## 5. How the code works
+
+- `MAX10_CLK1_50`: 50 MHz system clock for everything  
+- `SW[9]`: reset for the FSM  
+- `GPIO[35]`: UART RX into FPGA  
+- `GPIO[33]`: UART TX out of FPGA
+
+- `w_clk`: alias for the 50 MHz clock  
+- `RxD_data_ready`: goes high for one clock when a full UART byte arrives  
+- `RxD_data`: the received 8-bit byte  
+- `GPout`: register that stores the last received byte
+
+- `async_receiver`: listens on `GPIO[35]`, outputs `RxD_data_ready` and `RxD_data`  
+- `async_transmitter`: echoes the same byte on `GPIO[33]` whenever `RxD_data_ready` pulses
+
+- `always @(posedge w_clk)`: latches `GPout <= RxD_data` when `RxD_data_ready` is high  
+- `assign LEDR[7:0] = GPout;`: shows the last byte on the LEDs (binary)
+
+- `FSM_Word_Detecter`:
+  - Inputs: `clk`, `reset` (`SW[9]`), `RXD_data` (`GPout`), `data_ready` (`RxD_data_ready`)
+  - Action: on each new byte, checks the sequence `h e l l o`
+  - Outputs: drives `HEX4..HEX0` to blink “HELLO” when the word is detected
+
+- `HEX5` and `HEX6`: forced off with `7'b1111111`
+
 
 
 ## 6. Understand UART
 
 Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchronous serial communication technique that transfers data between two devices.  It requires both devices to agree on a common speed (baud rate), frames the data with start and stop bits, and turns parallel data into a serial stream.  One device's TX pin is connected to the other's RX pin; this connection is asynchronous, which means there isn't a separate clock signal; the receiver is kept in sync by the start and stop bits.
 
+##
 
 
 ## 7. Mini video of working project
