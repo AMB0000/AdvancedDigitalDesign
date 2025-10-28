@@ -43,7 +43,7 @@ The provided `async_receiver` and `async_transmitter` handled sampling and timin
 ## 7. Mini video of working project
 
 
-https://github.com/user-attachments/assets/56aba52f-8010-47dc-b5b0-965dd6b6039b
+![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/e0aa5990af43b917c48811a6d1d9ad414f2fd596/Lab_07/lab07gifALIB.gif)
 
 ## 8. Conclusion
 
