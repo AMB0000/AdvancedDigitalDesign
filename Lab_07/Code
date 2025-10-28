@@ -1,1 +1,54 @@
 
+```verilog
+
+`default_nettype none
+
+module main(
+    input        MAX10_CLK1_50,
+    input  [9:0] SW,
+    output [9:0] LEDR,
+    inout  [35:0] GPIO,
+    output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6
+);
+    wire clk_i = MAX10_CLK1_50;
+
+    wire        rx_ready;
+    wire [7:0]  rx_byte;
+    reg  [7:0]  rx_buf;
+
+    async_receiver RX_U(
+        .clk(clk_i),
+        .RxD(GPIO[35]),
+        .RxD_data_ready(rx_ready),
+        .RxD_data(rx_byte)
+    );
+
+    async_transmitter TX_U(
+        .clk(clk_i),
+        .TxD(GPIO[33]),
+        .TxD_start(rx_ready),
+        .TxD_data(rx_byte)
+    );
+
+    always @(posedge clk_i) begin
+        if (rx_ready)
+            rx_buf <= rx_byte;
+    end
+
+    assign LEDR[7:0] = rx_buf;
+    assign LEDR[9:8] = 2'b00;
+
+    FSM_Word_Detecter DET(
+        .clk(clk_i),
+        .reset(SW[9]),
+        .RXD_data(rx_buf),
+        .data_ready(rx_ready),
+        .HEX0(HEX0), .HEX1(HEX1), .HEX2(HEX2), .HEX3(HEX3), .HEX4(HEX4)
+    );
+
+    assign HEX5 = 7'b1111111;
+    assign HEX6 = 7'b1111111;
+endmodule
+
+`default_nettype wire
+```
