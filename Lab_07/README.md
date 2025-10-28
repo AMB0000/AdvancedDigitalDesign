@@ -1,7 +1,8 @@
 # UART Word Detector — DE10-Lite
 
 #### Student : Ali Behbehani
-
+#### Class : Advanced Digital Design
+#### Instructor : Goncalo Fernandes Pereira Martins
 
 ## 1. Objective
 I implemented a UART-based word detection system on the Intel DE10-Lite FPGA board. The FPGA received ASCII characters at 115200 baud. When the word “hello” was received, a Finite State Machine (FSM) activated and displayed “HELLO” on the 7-segment HEX displays (HEX4 to HEX0), blinking for 3 seconds. This design demonstrated digital communication, finite state machines, and timed display control using Verilog HDL.
