@@ -54,7 +54,7 @@ Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchron
 - `HEX5` and `HEX6`: forced off with `7'b1111111`
 
 
-## 7. Mini video of working project
+## 7. Video of working project
 
 
 ![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/e0aa5990af43b917c48811a6d1d9ad414f2fd596/Lab_07/lab07gifALIB.gif)
