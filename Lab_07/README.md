@@ -1,4 +1,4 @@
-# UART Word Detector — DE10-Lite
+# UART Word Detector  DE10-Lite
 
 #### Student : Ali Behbehani
 #### Class : Advanced Digital Design
