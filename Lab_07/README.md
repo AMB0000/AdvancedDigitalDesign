@@ -29,18 +29,7 @@ I built a UART receiver at 115200 baud using the 50 MHz clock, an FSM that detec
 
 ## 6. Understand UART
 
-UART (Universal Asynchronous Receiver/Transmitter) converts parallel data to serial and back without a shared clock.
-
-**8N1 frame:**
-Idle(1) → Start(0) → D0 → D1 → D2 → D3 → D4 → D5 → D6 → D7 → Stop(1)
-
-- 1 start bit (low)
-- 8 data bits (LSB first)
-- 1 stop bit (high)
-- No parity
-- Baud rate: 115200 baud (≈434 clocks/bit at 50 MHz)
-
-The provided `async_receiver` and `async_transmitter` handled sampling and timing internally.
+Using a transmit (TX) and receive (RX) pin, UART is a straightforward, asynchronous serial communication technique that transfers data between two devices.  It requires both devices to agree on a common speed (baud rate), frames the data with start and stop bits, and turns parallel data into a serial stream.  One device's TX pin is connected to the other's RX pin; this connection is asynchronous, which means there isn't a separate clock signal; the receiver is kept in sync by the start and stop bits.
 
 
 
