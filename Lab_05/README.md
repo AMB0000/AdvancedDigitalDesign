@@ -1,129 +1,143 @@
-# Laboratory 5  Adders, Subtractors, and Multipliers
+#  Lab 5 – Adders, Subtractors, and Multipliers
+
+**Course:** Advanced digital design
+**Date:** October 14th 2025
+**Name:** Ali Behbehani  
+ 
 ---
 
-## Objective
-The goal of this laboratory exercise is to design, simulate, and implement **arithmetic circuits** in Verilog HDL — including **adders, subtractors, and multipliers**.  
-Each section increases in complexity, starting from a simple accumulator and progressing to an advanced **adder-tree multiplier**.  
-This lab highlights trade-offs between **speed, circuit complexity, and hardware efficiency**.
+##  Imtroduction
 
----
+This lab focuses on building and analyzing arithmetic logic units on an FPGA using **Verilog HDL**.  
+Throughout the lab, I designed a set of digital circuits capable of performing **addition, subtraction, and multiplication**, both in sequential and parallel.
 
-## Equipment and Tools
-- Intel Quartus Prime / Quartus II  
-- ModelSim Simulator  
-- Intel/Altera DE10-Lite FPGA Board  
-- MAX10 FPGA Chip  
-- On-board push-buttons, switches, and 7-segment displays  
 
 ---
 
-## Part I – 8-Bit Accumulator (Adder)
 
-### Explanation
-The **8-bit accumulator** adds the input value `A` (from switches `SW[7:0]`) to a stored total every clock pulse.  
-Pressing `KEY[0]` provides a manual clock pulse, and the total is updated with the new value.  
-A **debounce circuit** ensures a clean clock signal by removing button noise.
 
-### Functional Overview
-| Signal | Description |
-|--------|--------------|
-| SW[7:0] | Input value A |
-| KEY[0] | Clock input (debounced) |
-| SW[9] | Active-high reset |
-| LEDR[7:0] | Sum output |
-| LEDR[8] | Overflow indicator |
-| HEX0–HEX2 | Decimal display of sum |
+##  Part I – 8-bit Sum Adder
 
-The binary result is converted to BCD for display on 7-segment LEDs.
+### A little info
 
----
+An **accumulator** repeatedly adds incoming 8-bit data to a stored total every time the user presses the clock key.  
+The running sum is displayed in both **binary (LEDs)** and **decimal (HEX displays)**.
 
-## Part II – Adder–Subtractor
+###   How it works
+- Uses an **8-bit full adder**, an **8-bit register**, and a **debounce circuit**.  
+- On each clock edge (`KEY[0]`), the switch input `SW[7:0]` is added to the stored total.  
+- Reset (`SW[9]`) clears the accumulator.  
+- A **binary-to-BCD converter** and **7-segment decoder** display the total value.
 
-### Explanation
-This version extends the accumulator to include a **mode control** (`SW[8]`) that toggles between addition and subtraction.  
-Subtraction is handled through **two’s complement arithmetic**, reusing the same hardware efficiently.
+###  Code (summarized)
+```verilog
+accum8 my_accum (
+    .clk_in(clk_pulse),   
+    .rst_in(SW[9]),       
+    .data_in(SW[7:0]),
+    .sum_out(result_bus),
+    .flag_over(LEDR[8])
+);
+always @(posedge clk_in or posedge rst_in) begin
+    if (rst_in)
+        acc_q <= 8'b0;
+    else
+        {ovf_q, acc_q} <= acc_q + data_in;
+end
 
-### Functional Overview
-| Signal | Description |
-|--------|--------------|
-| SW[7:0] | Input value A |
-| SW[8] | Add/Subtract selector (0 = Add, 1 = Subtract) |
-| SW[9] | Reset |
-| LEDR[8] | Overflow indicator |
-| HEX0–HEX2 | Decimal display of result |
 
----
+```
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part1%20(1).png) 
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part1%20(2).png)
 
-## Part III – 4×4 Array Multiplier
+##  Part II – 8-bit Adder / Subtractor
 
-### Explanation
-This part implements a **4×4-bit binary multiplier** using an **array structure**.  
-Each bit of operand B multiplies with operand A via AND gates to produce **partial products**, which are then added with full adders in a grid layout.  
-This design is highly regular and straightforward to visualize.
+### Design
+This module performs both **addition and subtraction** on 8-bit inputs depending on a control switch (`SW[8]`).  
+When the switch is low, it adds the two numbers; when high, it subtracts by generating the 1’s complement of the second operand.
 
-### Functional Overview
-| Signal | Description |
-|--------|--------------|
-| SW[3:0] | Input A |
-| SW[7:4] | Input B |
-| LEDR[7:0] | Product result |
-| LEDR[8] | Overflow indicator |
-| HEX0–HEX2 | Decimal product output |
-| HEX4–HEX5 | Input value display |
+###  How it works
+- Built from an **8-bit adder/subtractor unit** that combines XOR logic and full adders.  
+- Uses an **8-bit register** to store the computed result.  
+- The control line `SW[8]` acts like a multiplexer that decides between addition or subtraction.  
+- A binary-to-BCD converter and 7-segment decoders handle the display output.  
+- Overflow detection is implemented and shown on `LEDR[8]`.
 
----
+###  Code (summarized)
+```verilog
+accum_sub8 u_accum_sub (
+    .data_in(SW[7:0]),
+    .mode(SW[8]),
+    .clk_in(w_clk),
+    .rst_in(SW[9]),
+    .overflow_out(LEDR[8]),
+    .sum_out(w_sum)
+);
+```
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part2%20(1).png)
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part2%20(2).png)
 
-## Part IV – 8×8 Registered Multiplier
+##  Part III – 4×4 Binary Multiplier
 
-### Explanation
-This section scales the design to **8×8 bits** and introduces **registers** to hold inputs and outputs.  
-Registering data improves stability and allows **pipelining**, which supports higher clock frequencies.  
-A fixed value (A = 100) is stored in one register, while `SW[7:0]` provides the variable operand B.
-
-### Functional Overview
-| Signal | Description |
-|--------|--------------|
-| SW[7:0] | Input B |
-| Constant A | Fixed value = 100 |
-| SW[9] | Reset |
-| LEDR[8:0] | Binary product output |
-| HEX0–HEX4 | Product display |
+###  Design
+This circuit multiplies two 4-bit unsigned inputs (`A = SW[7:4]`, `B = SW[3:0]`) and produces an 8-bit product.  
+The result is shown in **binary** on LEDR and in **decimal** using the HEX displays.
 
 ---
 
-## Part V – 4×4 Adder-Tree Multiplier
-
-### Explanation
-This final circuit demonstrates a **4×4 adder-tree multiplier**, which uses a **parallel summation structure** to speed up computation.  
-Instead of summing partial products sequentially, the adder-tree adds them in parallel, significantly reducing propagation delay and improving performance.
-
-### Functional Overview
-| Signal | Description |
-|--------|--------------|
-| SW[7:4] | Input A |
-| SW[3:0] | Input B |
-| SW[9] | Reset |
-| LEDR[8:0] | Binary product output |
-| HEX0–HEX2 | Decimal result display |
+###   How it works
+- Sixteen (**16**) AND gates generate all partial products.  
+- **Half-adders** and **full-adders** sum the shifted partial-product rows.  
+- The final 8-bit product is displayed in binary (LEDR) and converted to BCD for HEX output.  
+- Overflow detection is indicated on `LEDR[8]`.
 
 ---
 
-## Discussion
-| Concept | Key Takeaway |
-|----------|---------------|
-| **Ripple Adders** | Simple design but slower for wide bit-widths due to carry delay. |
-| **Subtractor** | Efficiently achieved using two’s complement arithmetic. |
-| **Array Multiplier** | Structured layout but not optimal for high-speed performance. |
-| **Registered Multiplier** | Improves stability and enables higher operating frequencies. |
-| **Adder-Tree Multiplier** | Fastest method; uses parallel addition to minimize delay. |
+###  Code (summaized)
+```verilog
+
+wire [3:0] a = SW[7:4];
+wire [3:0] b = SW[3:0];
+wire [7:0] w_product;
+
+assign w_product  = a * b;
+assign LEDR[7:0]  = w_product;
+assign LEDR[8]    = 1'b0;  
+
+hex7seg h0(w_product[3:0], HEX0);
+hex7seg h1(w_product[7:4], HEX1);
+
+```
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part3%20(1).png)
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part3%20(2).png)
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part3%20(3).png)
+
+##  Part IV – 8×8 Sequential Multiplier (Adder Chain)
+
+###  Design
+This design multiplies two 8-bit numbers by **adding shifted partial products sequentially**.  
+While it produces accurate results, it operates more slowly because of the long propagation delay through the chained adders.
 
 ---
 
-## Conclusion
-This lab provided practical experience designing **arithmetic circuits** in Verilog HDL.  
-Starting from an accumulator and progressing to complex multipliers, we observed how **speed, area, and logic depth** affect performance.  
-By analyzing timing and overflow, we learned how design choices balance simplicity and efficiency in FPGA systems.
+###   How it works
+- **64 partial products** are created using AND gates.  
+- The partial products are **shifted** according to bit position and **added sequentially** through a chain of 8-bit adders.  
+- The final sum is stored in a **16-bit register** that holds the complete product.  
+- A **Binary-to-BCD converter** translates the result for display on the 7-segment HEX modules.  
+- This architecture demonstrates the trade-off between area efficiency and processing speed.
 
 ---
+
+###  Code (summarized only)
+```verilog
+mult8x8_seq u_mult8x8 (
+    .a_in(8'd100),
+    .b_in(SW[7:0]),
+    .prod_out(w_product),
+    .overflow_out(LEDR[9])
+);
+```
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part4%20(1).png)
+![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part4%20(2).png)
 
