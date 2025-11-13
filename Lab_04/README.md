@@ -236,7 +236,6 @@ seg7_letter R (.code(right), .HEX(HEX0));
 This lab provided practical experience in designing and implementing **counters and sequential logic circuits** using Verilog HDL.  
 We built and tested various types of counters, from T flip-flop–based designs to LPM-optimized modules.  
 Through these exercises, we learned how to divide clocks, manage timing, and apply sequential logic principles.  
-The final scrolling “HELLO” display showcased how counting and timing can create interactive and dynamic digital systems.
 
 ---
 
