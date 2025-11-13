@@ -29,22 +29,37 @@ The running sum is displayed in both **binary (LEDs)** and **decimal (HEX displa
 - Reset (`SW[9]`) clears the accumulator.  
 - A **binary-to-BCD converter** and **7-segment decoder** display the total value.
 
-###  Code (summarized)
+###  Code 
 ```verilog
-accum8 my_accum (
-    .clk_in(clk_pulse),   
-    .rst_in(SW[9]),       
-    .data_in(SW[7:0]),
-    .sum_out(result_bus),
-    .flag_over(LEDR[8])
+reg_nbit REG0(
+	.i_R(SW[7:0]),
+	.i_clk(w_myClk),
+	.i_rst(SW[9]),
+	.o_Q(LEDR[7:0])
 );
-always @(posedge clk_in or posedge rst_in) begin
-    if (rst_in)
-        acc_q <= 8'b0;
-    else
-        {ovf_q, acc_q} <= acc_q + data_in;
-end
 
+wire [7:0] w_sum;
+
+accumulator_8bit Acc_8bit(
+	.i_A(SW[7:0]),
+	.i_clk(w_myClk),
+	.i_rst(SW[9]),
+	.o_overflow(LEDR[8]),
+	.o_S(w_sum)
+);
+
+wire [3:0] w_O, w_T, w_H;
+
+bin8_to_bcd u_b2b (
+	.bin(w_sum),
+	.bcd_hundreds(w_H),
+	.bcd_tens(w_T),
+	.bcd_ones(w_O)
+);
+
+seg7Decoder SEG_O (w_O, HEX0);
+seg7Decoder SEG_T (w_T, HEX1);
+seg7Decoder SEG_H (w_H, HEX2);
 
 ```
 ![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part1%20(1).png) 
@@ -63,16 +78,33 @@ When the switch is low, it adds the two numbers; when high, it subtracts by gene
 - A binary-to-BCD converter and 7-segment decoders handle the display output.  
 - Overflow detection is implemented and shown on `LEDR[8]`.
 
-###  Code (summarized)
+###  Code
 ```verilog
-accum_sub8 u_accum_sub (
-    .data_in(SW[7:0]),
-    .mode(SW[8]),
-    .clk_in(w_clk),
-    .rst_in(SW[9]),
-    .overflow_out(LEDR[8]),
-    .sum_out(w_sum)
+wire [7:0] w_sum;
+
+accumulator_sub_8bit Acc__sub_8bit(
+	.i_A(SW[7:0]),
+	.i_addsub(SW[8]),
+	.i_clk(w_myClk),
+	.i_rst(SW[9]),
+	.o_overflow(LEDR[8]),
+	.o_S(w_sum)
 );
+
+assign LEDR[7:0] = w_sum;
+
+wire [3:0] w_O, w_T, w_H;
+
+bin8_to_bcd u_b2b (
+	.bin(w_sum),
+	.bcd_hundreds(w_H),
+	.bcd_tens(w_T),
+	.bcd_ones(w_O)
+);
+
+seg7Decoder SEG_O (w_O, HEX0);
+seg7Decoder SEG_T (w_T, HEX1);
+seg7Decoder SEG_H (w_H, HEX2);
 ```
 ![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part2%20(1).png)
 ![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part2%20(2).png)
@@ -93,19 +125,36 @@ The result is shown in **binary** on LEDR and in **decimal** using the HEX displ
 
 ---
 
-###  Code (summaized)
+###  Code 
 ```verilog
 
-wire [3:0] a = SW[7:4];
-wire [3:0] b = SW[3:0];
-wire [7:0] w_product;
+assign HEX3 = 8'b11111111;
+seg7Decoder SEG_A (SW[3:0], HEX4);
+seg7Decoder SEG_B (SW[7:4], HEX5);
 
-assign w_product  = a * b;
-assign LEDR[7:0]  = w_product;
-assign LEDR[8]    = 1'b0;  
+wire [7:0] w_Product;
 
-hex7seg h0(w_product[3:0], HEX0);
-hex7seg h1(w_product[7:4], HEX1);
+multiplier_4x4 MT_4by4 (
+	.i_A(SW[3:0]),
+	.i_B(SW[7:4]),
+	.o_P(w_Product),
+	.o_Overflow(LEDR[8])
+);
+
+assign LEDR[7:0] = w_Product;
+
+wire [3:0] w_O, w_T, w_H;
+
+bin8_to_bcd u_b2b (
+	.bin(w_Product),
+	.bcd_hundreds(w_H),
+	.bcd_tens(w_T),
+	.bcd_ones(w_O)
+);
+
+seg7Decoder SEG_O (w_O, HEX0);
+seg7Decoder SEG_T (w_T, HEX1);
+seg7Decoder SEG_H (w_H, HEX2);
 
 ```
 ![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part3%20(1).png)
@@ -129,13 +178,43 @@ While it produces accurate results, it operates more slowly because of the long 
 
 ---
 
-###  Code (summarized only)
+###  Code 
 ```verilog
-mult8x8_seq u_mult8x8 (
-    .a_in(8'd100),
-    .b_in(SW[7:0]),
-    .prod_out(w_product),
-    .overflow_out(LEDR[9])
+wire w_rst = SW[9];
+wire [7:0] w_Q_A, w_Q_B;
+
+reg_nbit #(8) REG_A (
+	.i_R(8'd100),
+	.i_clk(w_myClk),
+	.i_rst(w_rst),
+	.o_Q(w_Q_A)
+);
+
+reg_nbit #(8) REG_B (
+	.i_R(SW[7:0]),
+	.i_clk(w_myClk),
+	.i_rst(w_rst),
+	.o_Q(w_Q_B)
+);
+
+wire [15:0] w_Product;
+
+multiplier_8x8 MT_8by8 (
+	.i_A(w_Q_A),
+	.i_B(w_Q_B),
+	.o_P(w_Product),
+	.o_Overflow(LEDR[9])
+);
+
+assign LEDR[8:0] = w_Product[8:0];
+
+wire [15:0] w_reg_Product;
+
+reg_nbit #(16) REG_P (
+	.i_R(w_Product),
+	.i_clk(w_myClk),
+	.i_rst(w_rst),
+	.o_Q(w_reg_Product)
 );
 ```
 ![image alt](https://github.com/AMB0000/Lab5/blob/4d11d12595c18a68c410708adc7689dfb76b3a53/part4%20(1).png)
