@@ -237,6 +237,4 @@ The final scrolling “HELLO” display showcased how counting and timing can cr
 
 ---
 
-## References
-- Laboratory Exercise 5 – *Counters and Sequential Circuits*, Altera University Program  
-- ENEE 2223 Course Lecture Notes and Materials
+
