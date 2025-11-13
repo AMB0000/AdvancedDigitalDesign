@@ -74,6 +74,8 @@ This means the latch is **level-sensitive** — it changes only while the clock 
 In our design, the LED followed the switch input when the clock was high and stayed frozen when the clock went low.
 
 
+![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/39f975183d0656150148c85415ff55cdf89abfe6/Lab_03/Screenshot%202025-11-12%20213057.png)
+
 ### Code created 
 ```verilog
 module d_latch_keep(input D, input Clk, output Q);
