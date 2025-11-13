@@ -49,7 +49,7 @@ TFlipFlop_8bits counter8bit (SW[1], w_clk, SW[9], w_Q);
 seg7Decoder Ones(w_Q[3:0], HEX0);
 seg7Decoder Tens(w_Q[7:4], HEX1);
 ```
-
+![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/513f023da53f353e95c7cbf4ef1e4d8e61f70e4b/Lab_04/Screenshot%202025-11-12%20224705.png)
 
 ## Part II – 8-bit Counter Using `counter_16bit` Module
 
@@ -83,6 +83,9 @@ counter_16bit(w_clk, SW[9], w_Q);
 seg7Decoder Ones(w_Q[3:0], HEX0);
 seg7Decoder Tens(w_Q[7:4], HEX1);
 ```
+
+![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/a35fb4b12437502e5d1480218d3be9ad52b9d8b6/Lab_04/Screenshot%202025-11-12%20224809.png)
+![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/a35fb4b12437502e5d1480218d3be9ad52b9d8b6/Lab_04/Screenshot%202025-11-12%20224815.png)
 ---
 
 ## Part III – 8-bit Counter Using LPM (Library of Parameterized Modules)
