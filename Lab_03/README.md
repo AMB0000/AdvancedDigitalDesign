@@ -109,7 +109,7 @@ Together, they create a circuit that only updates its output on the **falling ed
 
 On the DE10-Lite board, we saw the LED output change **only when the clock button was released**, confirming the falling-edge behavior.
 
-
+![image alt](https://github.com/AMB0000/AdvancedDigitalDesign/blob/09d977fcfa4643baa7aa2ba0e361bb6ff2cd838b/Lab_03/Screenshot%202025-11-12%20213359.png)
 
 ```verilog
 
